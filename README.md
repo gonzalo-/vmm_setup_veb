@@ -20,12 +20,12 @@ ansible_python_interpreter=/usr/local/bin/python3
 
 playbook:
 
-	- hosts: current
-	  remote_user: gonzalo
-	  become: yes
-	  become_method: doas
-	  roles:
-	    - vmm_setup_veb
+- hosts: current
+  remote_user: gonzalo
+  become: yes
+  become_method: doas
+  roles:
+    - vmm_setup_veb
 
 License
 -------
