@@ -1,0 +1,32 @@
+sets="{{ vmm_dir }}/sets/"
+
+switch "veb" {
+	interface veb0
+}
+
+vm alpine {
+	disable
+	memory {{ vm03_ram }}
+	owner {{ vmm_user }}
+	cdrom $sets alpine-virt-3.16.1-x86_64.iso
+	disk {{ vmm_dir }}/alpine.qcow2
+	interface tap { switch "veb0" }
+}
+
+vm release {
+	disable
+	memory {{ vm02_ram }}
+	owner {{ vmm_user }}
+	cdrom $sets install72.iso
+	disk {{ vmm_dir }}/release.qcow2
+	interface tap { switch "veb0" }
+}
+
+vm current {
+	disable
+	memory {{ vm01_ram }}
+	owner {{ vmm_user }}
+	cdrom $sets install72.iso
+	disk {{ vmm_dir }}/signal.qcow2
+	interface tap { switch "veb0" }
+}

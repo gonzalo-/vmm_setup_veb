@@ -1,0 +1,15 @@
+---
+# vars file for vmm_setup_veb
+vmm_user: gonzalo
+vmm_dir: /home/gonzalo/VMs
+out_if: bwfm0
+local_net: 100.63.0.1/24
+net_vm01: 100.64.0.1/24
+net_vm02: 100.65.0.1/24
+net_vm03: 100.66.0.1/24
+vm01_size: 5G
+vm01_ram: 512M
+vm02_size: 5G
+vm02_ram: 512M
+vm03_size: 10G
+vm03_ram: 1G

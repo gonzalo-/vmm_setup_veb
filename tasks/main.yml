@@ -1,0 +1,73 @@
+---
+# tasks file for vmm_setup_veb
+- name: Creating user "{{ vmm_user }}"
+  user:
+    name: "{{ vmm_user }}"
+    state: present
+
+- name: Creating group "{{ vmm_user }}"
+  group:
+    name: "{{ vmm_user }}"
+    state: present
+    
+- name: Creating "{{ vmm_dir }}" directory
+  file:
+    path: "{{ vmm_dir }}"
+    state: directory
+    owner: "{{ vmm_user }}"
+    group: "{{ vmm_user }}"
+
+- name: Creating sets directory
+  file:
+    path: "{{ vmm_dir }}/sets"
+    state: directory
+    owner: "{{ vmm_user }}"
+    group: "{{ vmm_user }}"
+
+- name: Downloading OpenBSD snapshot
+  get_url:
+    url: "https://cdn.openbsd.org/pub/OpenBSD/snapshots/amd64/install72.img"
+    dest: "{{ vmm_dir }}/sets"
+    timeout: 60
+
+- name: Downloading Alpine-virt iso
+  get_url:
+    url: "https://dl-cdn.alpinelinux.org/alpine/v3.16/releases/x86_64/alpine-virt-3.16.1-x86_64.iso"
+    dest: "{{ vmm_dir }}/sets"
+    timeout: 60
+  
+- name: Creating current, release and alpine
+  shell: |
+    doas -u "{{ vmm_user }}" vmctl create -s "{{ vm01_size }}" "{{ vmm_dir }}/current.qcow2"
+    doas -u "{{ vmm_user }}" vmctl create -s "{{ vm02_size }}" "{{ vmm_dir }}/release.qcow2"
+    doas -u "{{ vmm_user }}" vmctl create -s "{{ vm03_size }}" "{{ vmm_dir }}/alpine.qcow2"
+  args:
+    executable: /bin/sh
+
+- name: Create directory for pf include
+  file:
+    path: /etc/pf
+    state: directory
+
+- template: src=hostname.local.j2 dest=/etc/hostname.{{ out_if }} owner="root" group="wheel" mode="0640"
+- template: src=hostname.veb0.j2 dest="/etc/hostname.veb0" owner="root" group="wheel" mode="0640"
+- template: src=hostname.vport0.j2 dest="/etc/hostname.vport0" owner="root" group="wheel" mode="0640"
+- template: src=vmd.conf.j2 dest="/etc/pf/vmd.conf" owner="root" group="wheel"
+- template: src=vm.conf.j2 dest="/etc/vm.conf" owner="root" group="wheel"
+
+- name: Enable vmd
+  service: name=vmd state=started enabled=yes
+
+- name: Load pf
+  shell: |
+    echo 'include "/etc/pf/vmd.conf"' >> /etc/pf.conf
+    pfctl -f /etc/pf.conf
+  args:
+    executable: /bin/sh
+
+- name: Enable forwarding
+  shell: |
+    sysctl -w net.inet.ip.forwarding=1
+    echo 'net.inet.ip.forwarding=1' >> /etc/sysctl.conf
+  args:
+    executable: /bin/sh
