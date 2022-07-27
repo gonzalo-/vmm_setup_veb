@@ -12,21 +12,23 @@ Example hosts & Playbook
 ------------------------
 
 hosts:
+```
 [current:vars]
 ansible_python_interpreter=/usr/local/bin/python3
 
 [current]
 100.65.0.100
+```
 
 playbook:
-
+```
 - hosts: current
   remote_user: gonzalo
   become: yes
   become_method: doas
   roles:
     - vmm_setup_veb
-
+```
 License
 -------
 
