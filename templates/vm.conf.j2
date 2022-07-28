@@ -27,6 +27,6 @@ vm current {
 	memory {{ vm01_ram }}
 	owner {{ vmm_user }}
 	cdrom $sets install72.iso
-	disk {{ vmm_dir }}/signal.qcow2
+	disk {{ vmm_dir }}/current.qcow2
 	interface tap { switch "veb0" }
 }
